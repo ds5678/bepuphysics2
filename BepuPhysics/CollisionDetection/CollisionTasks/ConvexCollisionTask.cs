@@ -48,9 +48,7 @@ namespace BepuPhysics.CollisionDetection.CollisionTasks
         public override unsafe void ExecuteBatch<TCallbacks>(ref UntypedList batch, ref CollisionBatcher<TCallbacks> batcher)
         {
             ref var start = ref Unsafe.As<byte, TPair>(ref batch.Buffer[0]);
-            //With any luck, the compiler will eventually get rid of these unnecessary zero inits. 
-            //Might be able to get rid of manifoldWide and defaultPairTester with some megahacks, but it comes with significant forward danger and questionable benefit.
-            var pairWide = default(TPairWide);
+            Unsafe.SkipInit(out TPairWide pairWide);
             ref var aWide = ref TPairWide.GetShapeA(ref pairWide);
             ref var bWide = ref TPairWide.GetShapeB(ref pairWide);
             if (aWide.InternalAllocationSize > 0)
@@ -64,7 +62,7 @@ namespace BepuPhysics.CollisionDetection.CollisionTasks
                 bWide.Initialize(new Buffer<byte>(memory, bWide.InternalAllocationSize));
             }
             TManifoldWide manifoldWide;
-            var manifold = default(ConvexContactManifold);
+            Unsafe.SkipInit(out ConvexContactManifold manifold);
 
             for (int i = 0; i < batch.Count; i += Vector<float>.Count)
             {
